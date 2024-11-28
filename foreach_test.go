@@ -42,7 +42,7 @@ func TestForEach_int(t *testing.T) {
 		{name: "02",
 			args: args{
 				ctx: context.Background(),
-				seq: VarToSeq(1, 2, 3),
+				seq: VarSeq(1, 2, 3),
 			},
 			wantErr:     true,
 			expectedErr: ErrNilAction,
@@ -50,7 +50,7 @@ func TestForEach_int(t *testing.T) {
 		{name: "03",
 			args: args{
 				ctx: ctx1,
-				seq: VarToSeq(1, 2, 3),
+				seq: VarSeq(1, 2, 3),
 				action: func(i int) error {
 					if i == 2 {
 						cancel()
@@ -64,7 +64,7 @@ func TestForEach_int(t *testing.T) {
 		{name: "04",
 			args: args{
 				ctx: context.Background(),
-				seq: VarToSeq(1, 2, 3),
+				seq: VarSeq(1, 2, 3),
 				action: func(i int) error {
 					if i == 2 {
 						return errorhelper.CallerError(ErrTestError)
@@ -79,7 +79,7 @@ func TestForEach_int(t *testing.T) {
 		{name: "1",
 			args: args{
 				ctx: context.Background(),
-				seq: VarToSeq(1, 2, 3),
+				seq: VarSeq(1, 2, 3),
 				action: func(i int) error {
 					acc1 += i * i
 					return nil
@@ -128,7 +128,7 @@ func TestForEachConcurrent_int(t *testing.T) {
 		{name: "01",
 			args: args{
 				ctx:    canceledCtx,
-				seq:    VarToSeq(1, 2, 3),
+				seq:    VarSeq(1, 2, 3),
 				action: func(int) error { return nil },
 			},
 			wantErr:     true,
@@ -137,7 +137,7 @@ func TestForEachConcurrent_int(t *testing.T) {
 		{name: "02",
 			args: args{
 				ctx: context.Background(),
-				seq: VarToSeq(1, 2, 3),
+				seq: VarSeq(1, 2, 3),
 				action: func(i int) error {
 					if i == 2 {
 						return errorhelper.CallerError(ErrTestError)

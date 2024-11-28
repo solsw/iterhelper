@@ -23,7 +23,7 @@ func TestStringFmt_int(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq:   VarToSeq(1, 2, 3, 4),
+				seq:   VarSeq(1, 2, 3, 4),
 				sep:   "-",
 				lrim:  "<",
 				rrim:  ">",
@@ -59,7 +59,7 @@ func TestStringDef(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarToSeq(intStringer(1), intStringer(2), intStringer(3)),
+				seq: VarSeq(intStringer(1), intStringer(2), intStringer(3)),
 			},
 			want: "[1+1 2+4 3+9]",
 		},
@@ -84,7 +84,7 @@ func TestStringDef_any(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarToSeq(any(intStringer(1)), any(2), any(intStringer(3))),
+				seq: VarSeq(any(intStringer(1)), any(2), any(intStringer(3))),
 			},
 			want: "[1+1 2 3+9]",
 		},
@@ -109,9 +109,9 @@ func TestStringSeq_int(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarToSeq(1, 2, 3),
+				seq: VarSeq(1, 2, 3),
 			},
-			want: VarToSeq("1", "2", "3"),
+			want: VarSeq("1", "2", "3"),
 		},
 	}
 	for _, tt := range tests {
@@ -136,9 +136,9 @@ func TestStringSeq_any(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarToSeq(any(1), any(intStringer(2)), any(3)),
+				seq: VarSeq(any(1), any(intStringer(2)), any(3)),
 			},
-			want: VarToSeq("1", "2+4", "3"),
+			want: VarSeq("1", "2+4", "3"),
 		},
 	}
 	for _, tt := range tests {
@@ -163,7 +163,7 @@ func TestStringSlice_int(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarToSeq(1, 2, 3),
+				seq: VarSeq(1, 2, 3),
 			},
 			want: []string{"1", "2", "3"},
 		},
@@ -189,7 +189,7 @@ func TestStringSlice_intStringer(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarToSeq(intStringer(1), 2, 3),
+				seq: VarSeq(intStringer(1), 2, 3),
 			},
 			want: []string{"1+1", "2+4", "3+9"},
 		},
