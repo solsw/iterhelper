@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/solsw/generichelper"
-	"github.com/solsw/go2linq/v4"
 )
 
 func TestSeqSeq2_string_int_string(t *testing.T) {
@@ -84,9 +83,9 @@ func TestSeqSeq2_string_int_string(t *testing.T) {
 				}
 				return
 			}
-			equal, _ := go2linq.SequenceEqual2(got, tt.want)
+			equal, _ := SequenceEqual2(got, tt.want)
 			if !equal {
-				t.Errorf("SeqSeq2() = %v, want %v", go2linq.StringDef2(got), go2linq.StringDef2(tt.want))
+				t.Errorf("SeqSeq2() = %v, want %v", StringDef2(got), StringDef2(tt.want))
 			}
 		})
 	}

@@ -30,17 +30,15 @@ func StringFmt[T any](seq iter.Seq[T], sep, lrim, rrim, ledge, redge string) str
 }
 
 // StringDef returns string representation of a sequence using default formatting.
-// If 'seq' is nil, empty string is returned.
+// (See [StringFmt]: 'sep' is set to space, 'lrim' and 'rrim' are empty strings,
+// 'ledge' and 'redge' are set to "[" and "]".)
 func StringDef[T any](seq iter.Seq[T]) string {
-	if seq == nil {
-		return ""
-	}
 	return StringFmt(seq, " ", "", "", "[", "]")
 }
 
 // StringFmt2 returns string representation of a sequence:
 //   - if 'seq2' is nil, empty string is returned;
-//   - if 'T' implements [fmt.Stringer], it is used to convert each element to string;
+//   - if 'K' or 'V' implements [fmt.Stringer], it is used to convert each element to string;
 //   - 'psep' separates pair of values;
 //   - 'esep' separates elements;
 //   - 'lrim' and 'rrim' surround each element;
@@ -60,11 +58,9 @@ func StringFmt2[K, V any](seq2 iter.Seq2[K, V], psep, esep, lrim, rrim, ledge, r
 }
 
 // StringDef2 returns string representation of a sequence using default formatting.
-// If 'seq2' is nil, empty string is returned.
+// (See [StringFmt2]: 'psep' is set to colon, 'esep' is set to space,
+// 'lrim' and 'rrim' are empty strings, 'ledge' and 'redge' are set to "[" and "]".)
 func StringDef2[K, V any](seq2 iter.Seq2[K, V]) string {
-	if seq2 == nil {
-		return ""
-	}
 	return StringFmt2(seq2, ":", " ", "", "", "[", "]")
 }
 

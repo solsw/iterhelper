@@ -5,6 +5,8 @@ import (
 	"iter"
 	"reflect"
 	"testing"
+
+	"github.com/solsw/generichelper"
 )
 
 func TestStringFmt_int(t *testing.T) {
@@ -48,7 +50,7 @@ func (i intStringer) String() string {
 	return fmt.Sprintf("%d+%d", i, i*i)
 }
 
-func TestStringDef(t *testing.T) {
+func TestStringDef_Stringer(t *testing.T) {
 	type args struct {
 		seq iter.Seq[intStringer]
 	}
@@ -82,6 +84,12 @@ func TestStringDef_any(t *testing.T) {
 		args args
 		want string
 	}{
+		{name: "nil seq",
+			args: args{
+				seq: nil,
+			},
+			want: "",
+		},
 		{name: "1",
 			args: args{
 				seq: VarSeq(any(intStringer(1)), any(2), any(intStringer(3))),
@@ -199,6 +207,41 @@ func TestStringSlice_intStringer(t *testing.T) {
 			got, _ := StringSlice(tt.args.seq)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("StringSlice() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestStringDef2_int_string(t *testing.T) {
+	type args struct {
+		seq2 iter.Seq2[int, string]
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{name: "nil seq2",
+			args: args{
+				seq2: nil,
+			},
+			want: "",
+		},
+		{name: "1",
+			args: args{
+				seq2: VarSeq2(
+					generichelper.Tuple2[int, string]{Item1: 1, Item2: "one"},
+					generichelper.Tuple2[int, string]{Item1: 2, Item2: "two"},
+					generichelper.Tuple2[int, string]{Item1: 3, Item2: "three"},
+				),
+			},
+			want: "[1:one 2:two 3:three]",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := StringDef2(tt.args.seq2); got != tt.want {
+				t.Errorf("StringDef2() = %v, want %v", got, tt.want)
 			}
 		})
 	}
