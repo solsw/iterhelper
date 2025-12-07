@@ -37,7 +37,7 @@ func TestForEach_int(t *testing.T) {
 				},
 			},
 			wantErr:     true,
-			expectedErr: ErrNilSource,
+			expectedErr: ErrNilSec,
 		},
 		{name: "02",
 			args: args{

@@ -67,7 +67,7 @@ func StringDef2[K, V any](seq2 iter.Seq2[K, V]) string {
 // StringSeq converts a sequence to a sequence of strings.
 func StringSeq[T any](seq iter.Seq[T]) (iter.Seq[string], error) {
 	if seq == nil {
-		return nil, errorhelper.CallerError(ErrNilSource)
+		return nil, errorhelper.CallerError(ErrNilSec)
 	}
 	return func(yield func(string) bool) {
 			for t := range seq {

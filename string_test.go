@@ -125,7 +125,7 @@ func TestStringSeq_int(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, _ := StringSeq(tt.args.seq)
-			equal, _ := SequenceEqual(got, tt.want)
+			equal, _ := SeqEqual(got, tt.want)
 			if !equal {
 				t.Errorf("StringSeq() = %v, want %v", StringDef(got), StringDef(tt.want))
 			}
@@ -152,7 +152,7 @@ func TestStringSeq_any(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, _ := StringSeq(tt.args.seq)
-			equal, _ := SequenceEqual(got, tt.want)
+			equal, _ := SeqEqual(got, tt.want)
 			if !equal {
 				t.Errorf("StringSeq() = %v, want %v", StringDef(got), StringDef(tt.want))
 			}

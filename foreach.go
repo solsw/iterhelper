@@ -13,7 +13,7 @@ import (
 // operation is stopped and corresponding error is returned.
 func ForEach[T any](ctx context.Context, seq iter.Seq[T], action func(T) error) error {
 	if seq == nil {
-		return errorhelper.CallerError(ErrNilSource)
+		return errorhelper.CallerError(ErrNilSec)
 	}
 	if action == nil {
 		return errorhelper.CallerError(ErrNilAction)
@@ -36,7 +36,7 @@ func ForEach[T any](ctx context.Context, seq iter.Seq[T], action func(T) error) 
 // operation is stopped and corresponding error is returned.
 func ForEachConcurrent[T any](ctx context.Context, seq iter.Seq[T], action func(T) error) error {
 	if seq == nil {
-		return errorhelper.CallerError(ErrNilSource)
+		return errorhelper.CallerError(ErrNilSec)
 	}
 	if action == nil {
 		return errorhelper.CallerError(ErrNilAction)

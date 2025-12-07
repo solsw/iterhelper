@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSequenceEqual_int(t *testing.T) {
+func TestSeqEqual_int(t *testing.T) {
 	r0 := intSeq(0, 0)
 	r1 := intSeq(0, 1)
 	r2 := intSeq(0, 2)
@@ -120,15 +120,15 @@ func TestSequenceEqual_int(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := SequenceEqual(tt.args.first, tt.args.second)
+			got, _ := SeqEqual(tt.args.first, tt.args.second)
 			if got != tt.want {
-				t.Errorf("SequenceEqual() = %v, want %v", got, tt.want)
+				t.Errorf("SeqEqual() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestSequenceEqual_string(t *testing.T) {
+func TestSeqEqual_string(t *testing.T) {
 	type args struct {
 		first  iter.Seq[string]
 		second iter.Seq[string]
@@ -162,15 +162,15 @@ func TestSequenceEqual_string(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := SequenceEqual(tt.args.first, tt.args.second)
+			got, _ := SeqEqual(tt.args.first, tt.args.second)
 			if got != tt.want {
-				t.Errorf("SequenceEqual() = %v, want %v", got, tt.want)
+				t.Errorf("SeqEqual() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestSequenceEqualEq_string(t *testing.T) {
+func TestSeqEqualEq_string(t *testing.T) {
 	type args struct {
 		first  iter.Seq[string]
 		second iter.Seq[string]
@@ -200,23 +200,24 @@ func TestSequenceEqualEq_string(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := SequenceEqualEq(tt.args.first, tt.args.second, tt.args.equal)
+			got, _ := SeqEqualEq(tt.args.first, tt.args.second, tt.args.equal)
 			if got != tt.want {
-				t.Errorf("SequenceEqualEq() = %v, want %v", got, tt.want)
+				t.Errorf("SeqEqualEq() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestSequenceEqual2_int_string(t *testing.T) {
+func TestSeq2Equal_int_string(t *testing.T) {
 	type args struct {
 		first  iter.Seq2[int, string]
 		second iter.Seq2[int, string]
 	}
 	tests := []struct {
-		name string
-		args args
-		want bool
+		name    string
+		args    args
+		want    bool
+		wantErr bool
 	}{
 		{name: "EmptyEmpty",
 			args: args{
@@ -239,12 +240,26 @@ func TestSequenceEqual2_int_string(t *testing.T) {
 			},
 			want: false,
 		},
+		{name: "Equal",
+			args: args{
+				first:  sec2_int_string(2),
+				second: sec2_int_string(2),
+			},
+			want: true,
+		},
+		{name: "NotEqual",
+			args: args{
+				first:  sec2_int_string(4),
+				second: sec2_int_string(2),
+			},
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, _ := SequenceEqual2(tt.args.first, tt.args.second)
+			got, _ := Seq2Equal(tt.args.first, tt.args.second)
 			if got != tt.want {
-				t.Errorf("SequenceEqual2() = %v, want %v", got, tt.want)
+				t.Errorf("Seq2Equal() = %v, want %v", got, tt.want)
 			}
 		})
 	}
