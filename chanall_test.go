@@ -51,17 +51,17 @@ func TestChanAll_int(t *testing.T) {
 		},
 		{name: "2",
 			args: args{c: chn2()},
-			want: VarSeq(1),
+			want: Var(1),
 		},
 		{name: "3",
 			args: args{c: chn3()},
-			want: VarSeq(4, 3, 2, 1),
+			want: Var(4, 3, 2, 1),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := ChanAll(tt.args.c)
-			equal, _ := SeqEqual(got, tt.want)
+			equal, _ := Equal(got, tt.want)
 			if !equal {
 				t.Errorf("ChanAll() = %v, want %v", StringDef(got), StringDef(tt.want))
 			}

@@ -12,9 +12,9 @@ import (
 func TestStringFmt_int(t *testing.T) {
 	type args struct {
 		seq   iter.Seq[int]
-		sep   string
 		lrim  string
 		rrim  string
+		sep   string
 		ledge string
 		redge string
 	}
@@ -25,10 +25,10 @@ func TestStringFmt_int(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq:   VarSeq(1, 2, 3, 4),
-				sep:   "-",
+				seq:   Var(1, 2, 3, 4),
 				lrim:  "<",
 				rrim:  ">",
+				sep:   "-",
 				ledge: "[",
 				redge: "]",
 			},
@@ -37,7 +37,8 @@ func TestStringFmt_int(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := StringFmt(tt.args.seq, tt.args.sep, tt.args.lrim, tt.args.rrim, tt.args.ledge, tt.args.redge); got != tt.want {
+			got := StringFmt(tt.args.seq, tt.args.lrim, tt.args.rrim, tt.args.sep, tt.args.ledge, tt.args.redge)
+			if got != tt.want {
 				t.Errorf("StringFmt() = %v, want %v", got, tt.want)
 			}
 		})
@@ -61,7 +62,7 @@ func TestStringDef_Stringer(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarSeq(intStringer(1), intStringer(2), intStringer(3)),
+				seq: Var(intStringer(1), intStringer(2), intStringer(3)),
 			},
 			want: "[1+1 2+4 3+9]",
 		},
@@ -92,7 +93,7 @@ func TestStringDef_any(t *testing.T) {
 		},
 		{name: "1",
 			args: args{
-				seq: VarSeq(any(intStringer(1)), any(2), any(intStringer(3))),
+				seq: Var(any(intStringer(1)), any(2), any(intStringer(3))),
 			},
 			want: "[1+1 2 3+9]",
 		},
@@ -117,15 +118,15 @@ func TestStringSeq_int(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarSeq(1, 2, 3),
+				seq: Var(1, 2, 3),
 			},
-			want: VarSeq("1", "2", "3"),
+			want: Var("1", "2", "3"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, _ := StringSeq(tt.args.seq)
-			equal, _ := SeqEqual(got, tt.want)
+			equal, _ := Equal(got, tt.want)
 			if !equal {
 				t.Errorf("StringSeq() = %v, want %v", StringDef(got), StringDef(tt.want))
 			}
@@ -144,15 +145,15 @@ func TestStringSeq_any(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarSeq(any(1), any(intStringer(2)), any(3)),
+				seq: Var(any(1), any(intStringer(2)), any(3)),
 			},
-			want: VarSeq("1", "2+4", "3"),
+			want: Var("1", "2+4", "3"),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, _ := StringSeq(tt.args.seq)
-			equal, _ := SeqEqual(got, tt.want)
+			equal, _ := Equal(got, tt.want)
 			if !equal {
 				t.Errorf("StringSeq() = %v, want %v", StringDef(got), StringDef(tt.want))
 			}
@@ -171,7 +172,7 @@ func TestStringSlice_int(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarSeq(1, 2, 3),
+				seq: Var(1, 2, 3),
 			},
 			want: []string{"1", "2", "3"},
 		},
@@ -197,7 +198,7 @@ func TestStringSlice_intStringer(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq: VarSeq(intStringer(1), 2, 3),
+				seq: Var(intStringer(1), 2, 3),
 			},
 			want: []string{"1+1", "2+4", "3+9"},
 		},
@@ -229,7 +230,7 @@ func TestStringDef2_int_string(t *testing.T) {
 		},
 		{name: "1",
 			args: args{
-				seq2: VarSeq2(
+				seq2: Var2(
 					generichelper.Tuple2[int, string]{Item1: 1, Item2: "one"},
 					generichelper.Tuple2[int, string]{Item1: 2, Item2: "two"},
 					generichelper.Tuple2[int, string]{Item1: 3, Item2: "three"},

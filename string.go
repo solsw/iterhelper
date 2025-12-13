@@ -9,69 +9,82 @@ import (
 	"github.com/solsw/errorhelper"
 )
 
-// StringFmt returns string representation of a sequence:
+// StringFmt returns string representation of a sequence of values yielded by the [iterator]
+// by calling [fmt.Sprint] on each value yielded by the [iterator]:
 //   - if 'seq' is nil, empty string is returned;
-//   - if 'T' implements [fmt.Stringer], it is used to convert each element to string;
-//   - 'sep' separates elements;
-//   - 'lrim' and 'rrim' surround each element;
+//   - 'lrim' and 'rrim' surround each value;
+//   - 'sep' separates values;
 //   - 'ledge' and 'redge' surround the whole string.
-func StringFmt[T any](seq iter.Seq[T], sep, lrim, rrim, ledge, redge string) string {
+//
+// [iterator]: https://pkg.go.dev/iter#Seq
+func StringFmt[V any](seq iter.Seq[V], lrim, rrim, sep, ledge, redge string) string {
 	if seq == nil {
 		return ""
 	}
 	var b strings.Builder
-	for t := range seq {
+	for v := range seq {
 		if b.Len() > 0 {
 			b.WriteString(sep)
 		}
-		b.WriteString(lrim + fmt.Sprint(t) + rrim)
+		b.WriteString(lrim + fmt.Sprint(v) + rrim)
 	}
 	return ledge + b.String() + redge
 }
 
-// StringDef returns string representation of a sequence using default formatting.
-// (See [StringFmt]: 'sep' is set to space, 'lrim' and 'rrim' are empty strings,
-// 'ledge' and 'redge' are set to "[" and "]".)
-func StringDef[T any](seq iter.Seq[T]) string {
-	return StringFmt(seq, " ", "", "", "[", "]")
+// StringDef returns string representation of a sequence of values
+// yielded by the [iterator] using default formatting.
+// (See [StringFmt]: 'lrim' and 'rrim' are empty strings,
+// 'sep' is set to space, 'ledge' and 'redge' are set to "[" and "]".)
+//
+// [iterator]: https://pkg.go.dev/iter#Seq
+func StringDef[V any](seq iter.Seq[V]) string {
+	return StringFmt(seq, "", "", " ", "[", "]")
 }
 
-// StringFmt2 returns string representation of a sequence:
+// StringFmt2 returns string representation of a sequence of pairs of values yielded by the [iterator]
+// by calling [fmt.Sprint] on each value yielded by the [iterator]:
 //   - if 'seq2' is nil, empty string is returned;
-//   - if 'K' or 'V' implements [fmt.Stringer], it is used to convert each element to string;
-//   - 'psep' separates pair of values;
-//   - 'esep' separates elements;
-//   - 'lrim' and 'rrim' surround each element;
+//   - 'vsep' separates values in pair;
+//   - 'lrim' and 'rrim' surround each pair;
+//   - 'psep' separates pairs;
 //   - 'ledge' and 'redge' surround the whole string.
-func StringFmt2[K, V any](seq2 iter.Seq2[K, V], psep, esep, lrim, rrim, ledge, redge string) string {
+//
+// [iterator]: https://pkg.go.dev/iter#Seq2
+func StringFmt2[K, V any](seq2 iter.Seq2[K, V], vsep, lrim, rrim, psep, ledge, redge string) string {
 	if seq2 == nil {
 		return ""
 	}
 	var b strings.Builder
 	for k, v := range seq2 {
 		if b.Len() > 0 {
-			b.WriteString(esep)
+			b.WriteString(psep)
 		}
-		b.WriteString(lrim + fmt.Sprint(k) + psep + fmt.Sprint(v) + rrim)
+		b.WriteString(lrim + fmt.Sprint(k) + vsep + fmt.Sprint(v) + rrim)
 	}
 	return ledge + b.String() + redge
 }
 
-// StringDef2 returns string representation of a sequence using default formatting.
-// (See [StringFmt2]: 'psep' is set to colon, 'esep' is set to space,
-// 'lrim' and 'rrim' are empty strings, 'ledge' and 'redge' are set to "[" and "]".)
+// StringDef2 returns string representation of a sequence of pairs
+// of values yielded by the [iterator] using default formatting.
+// (See [StringFmt2]: 'vsep' is set to colon, 'lrim' and 'rrim' are empty strings,
+// 'psep' is set to space, 'ledge' and 'redge' are set to "[" and "]".)
+//
+// [iterator]: https://pkg.go.dev/iter#Seq2
 func StringDef2[K, V any](seq2 iter.Seq2[K, V]) string {
-	return StringFmt2(seq2, ":", " ", "", "", "[", "]")
+	return StringFmt2(seq2, ":", "", "", " ", "[", "]")
 }
 
-// StringSeq converts a sequence to a sequence of strings.
-func StringSeq[T any](seq iter.Seq[T]) (iter.Seq[string], error) {
+// StringSeq converts an [iterator] to an [iterator] over strings
+// by calling [fmt.Sprint] on each value yielded by the [iterator].
+//
+// [iterator]: https://pkg.go.dev/iter#Seq
+func StringSeq[V any](seq iter.Seq[V]) (iter.Seq[string], error) {
 	if seq == nil {
 		return nil, errorhelper.CallerError(ErrNilSec)
 	}
 	return func(yield func(string) bool) {
-			for t := range seq {
-				if !yield(fmt.Sprint(t)) {
+			for v := range seq {
+				if !yield(fmt.Sprint(v)) {
 					return
 				}
 			}
@@ -79,8 +92,10 @@ func StringSeq[T any](seq iter.Seq[T]) (iter.Seq[string], error) {
 		nil
 }
 
-// StringSlice returns a sequence contents as a slice of strings.
-func StringSlice[T any](seq iter.Seq[T]) ([]string, error) {
+// StringSlice returns a sequence of values yielded by the [iterator] as a slice of strings.
+//
+// [iterator]: https://pkg.go.dev/iter#Seq
+func StringSlice[V any](seq iter.Seq[V]) ([]string, error) {
 	seqString, err := StringSeq(seq)
 	if err != nil {
 		return nil, errorhelper.CallerError(err)

@@ -8,22 +8,26 @@ import (
 	"github.com/solsw/generichelper"
 )
 
-// SeqEqual determines whether two [iter.Seq]s yield the equal sequences
+// Equal determines whether two [iterator]s yield the equal sequences
 // by comparing their elements using [generichelper.DeepEqual].
-func SeqEqual[V any](first, second iter.Seq[V]) (bool, error) {
+//
+// [iterator]: https://pkg.go.dev/iter#Seq
+func Equal[V any](first, second iter.Seq[V]) (bool, error) {
 	if first == nil || second == nil {
 		return false, errorhelper.CallerError(ErrNilSec)
 	}
-	r, err := SeqEqualEq(first, second, generichelper.DeepEqual[V])
+	r, err := EqualEq(first, second, generichelper.DeepEqual[V])
 	if err != nil {
 		return false, errorhelper.CallerError(err)
 	}
 	return r, nil
 }
 
-// SeqEqualEq determines whether two [iter.Seq]s yield the equal sequences
+// EqualEq determines whether two [iterator]s yield the equal sequences
 // by comparing their elements using a specified function.
-func SeqEqualEq[V any](first, second iter.Seq[V], equal func(V, V) bool) (bool, error) {
+//
+// [iterator]: https://pkg.go.dev/iter#Seq
+func EqualEq[V any](first, second iter.Seq[V], equal func(V, V) bool) (bool, error) {
 	if first == nil || second == nil {
 		return false, errorhelper.CallerError(ErrNilSec)
 	}
@@ -51,13 +55,15 @@ func SeqEqualEq[V any](first, second iter.Seq[V], equal func(V, V) bool) (bool, 
 	return true, nil
 }
 
-// Seq2Equal determines whether two [iter.Seq2]s yield the equal sequences
+// Equal2 determines whether two [iterator]s yield the equal sequences
 // by comparing their elements using [reflect.DeepEqual].
-func Seq2Equal[K, V any](first, second iter.Seq2[K, V]) (bool, error) {
+//
+// [iterator]: https://pkg.go.dev/iter#Seq2
+func Equal2[K, V any](first, second iter.Seq2[K, V]) (bool, error) {
 	if first == nil || second == nil {
 		return false, errorhelper.CallerError(ErrNilSec2)
 	}
-	r, err := Seq2EqualEq(first, second,
+	r, err := EqualEq2(first, second,
 		func(k1 K, v1 V, k2 K, v2 V) bool {
 			return reflect.DeepEqual(k1, k2) && reflect.DeepEqual(v1, v2)
 		})
@@ -67,9 +73,11 @@ func Seq2Equal[K, V any](first, second iter.Seq2[K, V]) (bool, error) {
 	return r, nil
 }
 
-// Seq2EqualEq determines whether two [iter.Seq2]s yield the equal sequences
+// EqualEq2 determines whether two [iterator]s yield the equal sequences
 // by comparing their elements using a specified function.
-func Seq2EqualEq[K, V any](first, second iter.Seq2[K, V],
+//
+// [iterator]: https://pkg.go.dev/iter#Seq2
+func EqualEq2[K, V any](first, second iter.Seq2[K, V],
 	equal func(k1 K, v1 V, k2 K, v2 V) bool) (bool, error) {
 	if first == nil || second == nil {
 		return false, errorhelper.CallerError(ErrNilSec2)

@@ -36,7 +36,7 @@ func TestSeqSeq2_string_int_string(t *testing.T) {
 		},
 		{name: "NilSelector",
 			args: args{
-				seq:      VarSeq("one", "two", "three", "four"),
+				seq:      Var("one", "two", "three", "four"),
 				selector: nil,
 			},
 			wantErr:     true,
@@ -55,14 +55,14 @@ func TestSeqSeq2_string_int_string(t *testing.T) {
 		},
 		{name: "Regular",
 			args: args{
-				seq: VarSeq("one", "two", "three", "four"),
+				seq: Var("one", "two", "three", "four"),
 				selector: func(s string) (int, string) {
 					rr := []rune(s)
 					slices.Reverse(rr)
 					return len(s), string(rr)
 				},
 			},
-			want: VarSeq2(
+			want: Var2(
 				generichelper.NewTuple2(3, "eno"),
 				generichelper.NewTuple2(3, "owt"),
 				generichelper.NewTuple2(5, "eerht"),
@@ -83,7 +83,7 @@ func TestSeqSeq2_string_int_string(t *testing.T) {
 				}
 				return
 			}
-			equal, _ := Seq2Equal(got, tt.want)
+			equal, _ := Equal2(got, tt.want)
 			if !equal {
 				t.Errorf("SeqSeq2() = %v, want %v", StringDef2(got), StringDef2(tt.want))
 			}
@@ -113,7 +113,7 @@ func TestSeq2Seq_int_string_string(t *testing.T) {
 		},
 		{name: "NilSelector",
 			args: args{
-				seq2: VarSeq2(
+				seq2: Var2(
 					generichelper.NewTuple2(1, "one"),
 					generichelper.NewTuple2(2, "two"),
 					generichelper.NewTuple2(3, "three"),
@@ -133,7 +133,7 @@ func TestSeq2Seq_int_string_string(t *testing.T) {
 		},
 		{name: "Regular",
 			args: args{
-				seq2: VarSeq2(
+				seq2: Var2(
 					generichelper.NewTuple2(1, "one"),
 					generichelper.NewTuple2(2, "two"),
 					generichelper.NewTuple2(3, "three"),
@@ -141,7 +141,7 @@ func TestSeq2Seq_int_string_string(t *testing.T) {
 				),
 				selector: func(i int, s string) string { return fmt.Sprintf("%d%s%[1]d", i, s) },
 			},
-			want: VarSeq("1one1", "2two2", "3three3", "4four4"),
+			want: Var("1one1", "2two2", "3three3", "4four4"),
 		},
 	}
 	for _, tt := range tests {
@@ -157,7 +157,7 @@ func TestSeq2Seq_int_string_string(t *testing.T) {
 				}
 				return
 			}
-			equal, _ := SeqEqual(got, tt.want)
+			equal, _ := Equal(got, tt.want)
 			if !equal {
 				t.Errorf("Seq2Seq() = %v, want %v", StringDef(got), StringDef(tt.want))
 			}
@@ -206,7 +206,7 @@ func TestSeq2SeqK_int_string(t *testing.T) {
 			if tt.wantErr {
 				return
 			}
-			equal, _ := SeqEqual(got, tt.want)
+			equal, _ := Equal(got, tt.want)
 			if !equal {
 				t.Errorf("Seq2SeqK() = %v, want %v", StringDef(got), StringDef(tt.want))
 			}
@@ -255,7 +255,7 @@ func TestSeq2SeqV_int_string(t *testing.T) {
 			if tt.wantErr {
 				return
 			}
-			equal, _ := SeqEqual(got, tt.want)
+			equal, _ := Equal(got, tt.want)
 			if !equal {
 				t.Errorf("Seq2SeqV() = %v, want %v", StringDef(got), StringDef(tt.want))
 			}
