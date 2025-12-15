@@ -62,7 +62,7 @@ func TestSeqSeq2_string_int_string(t *testing.T) {
 					return len(s), string(rr)
 				},
 			},
-			want: Var2(
+			want: Var2Tuple(
 				generichelper.NewTuple2(3, "eno"),
 				generichelper.NewTuple2(3, "owt"),
 				generichelper.NewTuple2(5, "eerht"),
@@ -113,7 +113,7 @@ func TestSeq2Seq_int_string_string(t *testing.T) {
 		},
 		{name: "NilSelector",
 			args: args{
-				seq2: Var2(
+				seq2: Var2Tuple(
 					generichelper.NewTuple2(1, "one"),
 					generichelper.NewTuple2(2, "two"),
 					generichelper.NewTuple2(3, "three"),
@@ -133,7 +133,7 @@ func TestSeq2Seq_int_string_string(t *testing.T) {
 		},
 		{name: "Regular",
 			args: args{
-				seq2: Var2(
+				seq2: Var2Tuple(
 					generichelper.NewTuple2(1, "one"),
 					generichelper.NewTuple2(2, "two"),
 					generichelper.NewTuple2(3, "three"),

@@ -230,7 +230,7 @@ func TestStringDef2_int_string(t *testing.T) {
 		},
 		{name: "1",
 			args: args{
-				seq2: Var2(
+				seq2: Var2Tuple(
 					generichelper.Tuple2[int, string]{Item1: 1, Item2: "one"},
 					generichelper.Tuple2[int, string]{Item1: 2, Item2: "two"},
 					generichelper.Tuple2[int, string]{Item1: 3, Item2: "three"},
