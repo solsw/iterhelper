@@ -16,7 +16,7 @@ func Var[V any](vv ...V) iter.Seq[V] {
 	return slices.Values(vv)
 }
 
-// Var2Tuple returns an [iterator] over the [variadic] parameters/tuples.
+// Var2Tuple returns an [iterator] over the [variadic] tuples of values.
 //
 // [iterator]: https://pkg.go.dev/iter#Seq2
 // [variadic]: https://go.dev/ref/spec#Function_types

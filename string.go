@@ -9,69 +9,89 @@ import (
 	"github.com/solsw/errorhelper"
 )
 
-// StringFmt returns string representation of a sequence of values yielded by the [iterator]
-// by calling [fmt.Sprint] on each value yielded by the [iterator]:
-//   - if 'seq' is nil, empty string is returned;
-//   - 'lrim' and 'rrim' surround each value;
-//   - 'sep' separates values;
-//   - 'ledge' and 'redge' surround the whole string.
+// Format defines formatting parameters.
+type Format struct {
+	// Left and right rims surround each element of a sequence.
+	LeftRim, RightRim string
+	// Element separator separates elements of a sequence.
+	ElementSeparator string
+	// Left and right edges surround the whole string.
+	LeftEdge, RightEdge string
+	// Value separator separates values in pair.
+	ValueSeparator string
+}
+
+// DefaultFormat represents default formatting parameters used by [StringDef] and [StringDef2].
+// Assign desired values, if needed.
+var DefaultFormat = Format{
+	LeftRim:          "",
+	RightRim:         "",
+	ElementSeparator: " ",
+	LeftEdge:         "[",
+	RightEdge:        "]",
+	ValueSeparator:   ":",
+}
+
+// StringFmt returns string representation of a [sequence] of values
+// by calling [fmt.Sprint] on each value yielded by the [iterator].
+// If 'seq' is nil, empty string is returned.
 //
+// [sequence]: https://pkg.go.dev/iter#Seq
 // [iterator]: https://pkg.go.dev/iter#Seq
-func StringFmt[V any](seq iter.Seq[V], lrim, rrim, sep, ledge, redge string) string {
+func StringFmt[V any](seq iter.Seq[V], format Format) string {
 	if seq == nil {
 		return ""
 	}
 	var b strings.Builder
 	for v := range seq {
 		if b.Len() > 0 {
-			b.WriteString(sep)
+			b.WriteString(format.ElementSeparator)
 		}
-		b.WriteString(lrim + fmt.Sprint(v) + rrim)
+		b.WriteString(format.LeftRim + fmt.Sprint(v) + format.RightRim)
 	}
-	return ledge + b.String() + redge
+	return format.LeftEdge + b.String() + format.RightEdge
 }
 
-// StringDef returns string representation of a sequence of values
-// yielded by the [iterator] using default formatting.
-// (See [StringFmt]: 'lrim' and 'rrim' are empty strings,
-// 'sep' is set to space, 'ledge' and 'redge' are set to "[" and "]".)
+// StringDef returns string representation of a [sequence] of values
+// by calling [fmt.Sprint] on each value yielded by the [iterator]
+// and using default formatting parameters.
+// If 'seq' is nil, empty string is returned.
 //
+// [sequence]: https://pkg.go.dev/iter#Seq
 // [iterator]: https://pkg.go.dev/iter#Seq
 func StringDef[V any](seq iter.Seq[V]) string {
-	return StringFmt(seq, "", "", " ", "[", "]")
+	return StringFmt(seq, DefaultFormat)
 }
 
-// StringFmt2 returns string representation of a sequence of pairs of values yielded by the [iterator]
+// StringFmt2 returns string representation of a [sequence] of pairs of values
 // by calling [fmt.Sprint] on each value yielded by the [iterator]:
-//   - if 'seq2' is nil, empty string is returned;
-//   - 'vsep' separates values in pair;
-//   - 'lrim' and 'rrim' surround each pair;
-//   - 'psep' separates pairs;
-//   - 'ledge' and 'redge' surround the whole string.
+// If 'seq2' is nil, empty string is returned.
 //
+// [sequence]: https://pkg.go.dev/iter#Seq2
 // [iterator]: https://pkg.go.dev/iter#Seq2
-func StringFmt2[K, V any](seq2 iter.Seq2[K, V], vsep, lrim, rrim, psep, ledge, redge string) string {
+func StringFmt2[K, V any](seq2 iter.Seq2[K, V], format Format) string {
 	if seq2 == nil {
 		return ""
 	}
 	var b strings.Builder
 	for k, v := range seq2 {
 		if b.Len() > 0 {
-			b.WriteString(psep)
+			b.WriteString(format.ElementSeparator)
 		}
-		b.WriteString(lrim + fmt.Sprint(k) + vsep + fmt.Sprint(v) + rrim)
+		b.WriteString(format.LeftRim + fmt.Sprint(k) + format.ValueSeparator + fmt.Sprint(v) + format.RightRim)
 	}
-	return ledge + b.String() + redge
+	return format.LeftEdge + b.String() + format.RightEdge
 }
 
-// StringDef2 returns string representation of a sequence of pairs
-// of values yielded by the [iterator] using default formatting.
-// (See [StringFmt2]: 'vsep' is set to colon, 'lrim' and 'rrim' are empty strings,
-// 'psep' is set to space, 'ledge' and 'redge' are set to "[" and "]".)
+// StringDef2 returns string representation of a [sequence] of pairs of values
+// by calling [fmt.Sprint] on each value yielded by the [iterator]
+// and using default formatting parameters.
+// If 'seq2' is nil, empty string is returned.
 //
+// [sequence]: https://pkg.go.dev/iter#Seq2
 // [iterator]: https://pkg.go.dev/iter#Seq2
 func StringDef2[K, V any](seq2 iter.Seq2[K, V]) string {
-	return StringFmt2(seq2, ":", "", "", " ", "[", "]")
+	return StringFmt2(seq2, DefaultFormat)
 }
 
 // StringSeq converts an [iterator] to an [iterator] over strings

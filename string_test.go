@@ -11,12 +11,8 @@ import (
 
 func TestStringFmt_int(t *testing.T) {
 	type args struct {
-		seq   iter.Seq[int]
-		lrim  string
-		rrim  string
-		sep   string
-		ledge string
-		redge string
+		seq    iter.Seq[int]
+		format Format
 	}
 	tests := []struct {
 		name string
@@ -25,20 +21,21 @@ func TestStringFmt_int(t *testing.T) {
 	}{
 		{name: "1",
 			args: args{
-				seq:   Var(1, 2, 3, 4),
-				lrim:  "<",
-				rrim:  ">",
-				sep:   "-",
-				ledge: "[",
-				redge: "]",
+				seq: Var(1, 2, 3, 4),
+				format: Format{
+					LeftRim:          "<",
+					RightRim:         ">",
+					ElementSeparator: "-",
+					LeftEdge:         "[",
+					RightEdge:        "]",
+				},
 			},
 			want: "[<1>-<2>-<3>-<4>]",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := StringFmt(tt.args.seq, tt.args.lrim, tt.args.rrim, tt.args.sep, tt.args.ledge, tt.args.redge)
-			if got != tt.want {
+			if got := StringFmt(tt.args.seq, tt.args.format); got != tt.want {
 				t.Errorf("StringFmt() = %v, want %v", got, tt.want)
 			}
 		})
