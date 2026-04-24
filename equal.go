@@ -5,18 +5,17 @@ import (
 	"reflect"
 
 	"github.com/solsw/errorhelper"
-	"github.com/solsw/generichelper"
 )
 
 // Equal determines whether two [iterator]s yield the equal sequences
-// by comparing their elements using [generichelper.DeepEqual].
+// by comparing their elements using [reflect.DeepEqual].
 //
 // [iterator]: https://pkg.go.dev/iter#Seq
 func Equal[V any](first, second iter.Seq[V]) (bool, error) {
 	if first == nil || second == nil {
-		return false, errorhelper.CallerError(ErrNilSec)
+		return false, errorhelper.CallerError(ErrNilSeq)
 	}
-	r, err := EqualEq(first, second, generichelper.DeepEqual[V])
+	r, err := EqualEq(first, second, func(v1, v2 V) bool { return reflect.DeepEqual(v1, v2) })
 	if err != nil {
 		return false, errorhelper.CallerError(err)
 	}
@@ -29,7 +28,7 @@ func Equal[V any](first, second iter.Seq[V]) (bool, error) {
 // [iterator]: https://pkg.go.dev/iter#Seq
 func EqualEq[V any](first, second iter.Seq[V], equal func(V, V) bool) (bool, error) {
 	if first == nil || second == nil {
-		return false, errorhelper.CallerError(ErrNilSec)
+		return false, errorhelper.CallerError(ErrNilSeq)
 	}
 	if equal == nil {
 		return false, errorhelper.CallerError(ErrNilEqual)
@@ -61,7 +60,7 @@ func EqualEq[V any](first, second iter.Seq[V], equal func(V, V) bool) (bool, err
 // [iterator]: https://pkg.go.dev/iter#Seq2
 func Equal2[K, V any](first, second iter.Seq2[K, V]) (bool, error) {
 	if first == nil || second == nil {
-		return false, errorhelper.CallerError(ErrNilSec2)
+		return false, errorhelper.CallerError(ErrNilSeq2)
 	}
 	r, err := EqualEq2(first, second,
 		func(k1 K, v1 V, k2 K, v2 V) bool {
@@ -80,7 +79,7 @@ func Equal2[K, V any](first, second iter.Seq2[K, V]) (bool, error) {
 func EqualEq2[K, V any](first, second iter.Seq2[K, V],
 	equal func(k1 K, v1 V, k2 K, v2 V) bool) (bool, error) {
 	if first == nil || second == nil {
-		return false, errorhelper.CallerError(ErrNilSec2)
+		return false, errorhelper.CallerError(ErrNilSeq2)
 	}
 	if equal == nil {
 		return false, errorhelper.CallerError(ErrNilEqual)
@@ -99,7 +98,7 @@ func EqualEq2[K, V any](first, second iter.Seq2[K, V],
 		if !ok1 {
 			break
 		}
-		if !(equal(k1, v1, k2, v2)) {
+		if !equal(k1, v1, k2, v2) {
 			return false, nil
 		}
 	}

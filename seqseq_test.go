@@ -32,7 +32,7 @@ func TestSeqSeq2_string_int_string(t *testing.T) {
 				},
 			},
 			wantErr:     true,
-			expectedErr: ErrNilSec,
+			expectedErr: ErrNilSeq,
 		},
 		{name: "NilSelector",
 			args: args{
@@ -109,7 +109,7 @@ func TestSeq2Seq_int_string_string(t *testing.T) {
 				selector: func(i int, s string) string { return fmt.Sprintf("%d%s%[1]d", i, s) },
 			},
 			wantErr:     true,
-			expectedErr: ErrNilSec2,
+			expectedErr: ErrNilSeq2,
 		},
 		{name: "NilSelector",
 			args: args{

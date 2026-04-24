@@ -16,9 +16,14 @@ func TestCollect2(t *testing.T) {
 		want []any
 	}{
 		{
+			name: "Nil",
+			seq2: nil,
+			want: nil,
+		},
+		{
 			name: "Empty",
 			seq2: Empty2[int, string](),
-			want: nil,
+			want: []any{},
 		},
 		{
 			name: "NonEmpty",
@@ -44,9 +49,14 @@ func TestCollect2Tuple(t *testing.T) {
 		want []generichelper.Tuple2[int, string]
 	}{
 		{
+			name: "Nil",
+			seq2: nil,
+			want: nil,
+		},
+		{
 			name: "Empty",
 			seq2: Empty2[int, string](),
-			want: nil,
+			want: []generichelper.Tuple2[int, string]{},
 		},
 		{
 			name: "NonEmpty",

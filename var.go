@@ -1,6 +1,7 @@
 package iterhelper
 
 import (
+	"fmt"
 	"iter"
 	"slices"
 
@@ -42,13 +43,15 @@ func Var2[K, V any](vv ...any) (iter.Seq2[K, V], error) {
 	}
 	tt := make([]generichelper.Tuple2[K, V], len(vv)/2)
 	for i := 0; i < len(vv); i += 2 {
-		k, ok := vv[i].(K)
-		if !ok {
-			return nil, errorhelper.CallerError(ErrWrongType(vv[i], k), vv[i])
+		k, okK := vv[i].(K)
+		if !okK {
+			return nil, errorhelper.CallerError(
+				fmt.Errorf("got %T, want %T: %w", vv[i], k, ErrWrongType), vv[i])
 		}
-		v, ok := vv[i+1].(V)
-		if !ok {
-			return nil, errorhelper.CallerError(ErrWrongType(vv[i+1], v), vv[i+1])
+		v, okV := vv[i+1].(V)
+		if !okV {
+			return nil, errorhelper.CallerError(
+				fmt.Errorf("got %T, want %T: %w", vv[i+1], v, ErrWrongType), vv[i+1])
 		}
 		tt[i/2] = generichelper.Tuple2[K, V]{Item1: k, Item2: v}
 	}

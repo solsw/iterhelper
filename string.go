@@ -23,6 +23,8 @@ type Format struct {
 
 // DefaultFormat represents default formatting parameters used by [StringDef] and [StringDef2].
 // Assign desired values, if needed.
+//
+// It is a package-level variable; concurrent modification is not safe.
 var DefaultFormat = Format{
 	LeftRim:          "",
 	RightRim:         "",
@@ -64,7 +66,7 @@ func StringDef[V any](seq iter.Seq[V]) string {
 }
 
 // StringFmt2 returns string representation of a [sequence] of pairs of values
-// by calling [fmt.Sprint] on each value yielded by the [iterator]:
+// by calling [fmt.Sprint] on each value yielded by the [iterator].
 // If 'seq2' is nil, empty string is returned.
 //
 // [sequence]: https://pkg.go.dev/iter#Seq2
@@ -100,7 +102,7 @@ func StringDef2[K, V any](seq2 iter.Seq2[K, V]) string {
 // [iterator]: https://pkg.go.dev/iter#Seq
 func StringSeq[V any](seq iter.Seq[V]) (iter.Seq[string], error) {
 	if seq == nil {
-		return nil, errorhelper.CallerError(ErrNilSec)
+		return nil, errorhelper.CallerError(ErrNilSeq)
 	}
 	return func(yield func(string) bool) {
 			for v := range seq {
