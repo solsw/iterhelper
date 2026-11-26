@@ -21,17 +21,21 @@ func ForEach[V any](ctx context.Context, seq iter.Seq[V], action func(V) error) 
 	if action == nil {
 		return errorhelper.CallerError(ErrNilAction)
 	}
+	if err := ctx.Err(); err != nil {
+		return errorhelper.CallerError(err)
+	}
 	for v := range seq {
-		select {
-		case <-ctx.Done():
-			return errorhelper.CallerError(ctx.Err())
-		default:
-			if err := action(v); err != nil {
-				return errorhelper.CallerError(err)
-			}
+		if ctx.Err() != nil {
+			break
+		}
+		if err := action(v); err != nil {
+			return errorhelper.CallerError(err)
+		}
+		if ctx.Err() != nil {
+			break
 		}
 	}
-	return nil
+	return errorhelper.CallerError(ctx.Err())
 }
 
 // ForEachConcurrent concurrently performs a specified 'action' on each value yielded by the [iterator].
@@ -46,25 +50,14 @@ func ForEachConcurrent[V any](ctx context.Context, seq iter.Seq[V], action func(
 	if action == nil {
 		return errorhelper.CallerError(ErrNilAction)
 	}
-	g := new(errgroup.Group)
-	g.SetLimit(8 * runtime.NumCPU())
-	for v := range seq {
-		g.Go(func() error {
-			select {
-			case <-ctx.Done():
-				return errorhelper.CallerError(ctx.Err())
-			default:
-				if err := action(v); err != nil {
-					return errorhelper.CallerError(err)
-				}
+	err := runConcurrent(ctx, func(yield func(func() error) bool) {
+		for v := range seq {
+			if !yield(func() error { return action(v) }) {
+				return
 			}
-			return nil
-		})
-	}
-	if err := g.Wait(); err != nil {
-		return errorhelper.CallerError(err)
-	}
-	return nil
+		}
+	})
+	return errorhelper.CallerError(err)
 }
 
 // ForEach2 sequentially performs a specified 'action' on each pair of values yielded by the [iterator].
@@ -79,17 +72,21 @@ func ForEach2[K, V any](ctx context.Context, seq2 iter.Seq2[K, V], action func(K
 	if action == nil {
 		return errorhelper.CallerError(ErrNilAction)
 	}
+	if err := ctx.Err(); err != nil {
+		return errorhelper.CallerError(err)
+	}
 	for k, v := range seq2 {
-		select {
-		case <-ctx.Done():
-			return errorhelper.CallerError(ctx.Err())
-		default:
-			if err := action(k, v); err != nil {
-				return errorhelper.CallerError(err)
-			}
+		if ctx.Err() != nil {
+			break
+		}
+		if err := action(k, v); err != nil {
+			return errorhelper.CallerError(err)
+		}
+		if ctx.Err() != nil {
+			break
 		}
 	}
-	return nil
+	return errorhelper.CallerError(ctx.Err())
 }
 
 // ForEachConcurrent2 concurrently performs a specified 'action' on each pair of values yielded by the [iterator].
@@ -104,23 +101,43 @@ func ForEachConcurrent2[K, V any](ctx context.Context, seq2 iter.Seq2[K, V], act
 	if action == nil {
 		return errorhelper.CallerError(ErrNilAction)
 	}
-	g := new(errgroup.Group)
-	g.SetLimit(8 * runtime.NumCPU())
-	for k, v := range seq2 {
-		g.Go(func() error {
-			select {
-			case <-ctx.Done():
-				return errorhelper.CallerError(ctx.Err())
-			default:
-				if err := action(k, v); err != nil {
-					return errorhelper.CallerError(err)
-				}
+	err := runConcurrent(ctx, func(yield func(func() error) bool) {
+		for k, v := range seq2 {
+			if !yield(func() error { return action(k, v) }) {
+				return
 			}
-			return nil
+		}
+	})
+	return errorhelper.CallerError(err)
+}
+
+// runConcurrent stops requesting actions on cancellation and waits for active calls.
+func runConcurrent(ctx context.Context, actions iter.Seq[func() error]) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	group, workerCtx := errgroup.WithContext(ctx)
+	slots := make(chan struct{}, 8*runtime.NumCPU())
+	actions(func(action func() error) bool {
+		if workerCtx.Err() != nil {
+			return false
+		}
+		select {
+		case <-workerCtx.Done():
+			return false
+		case slots <- struct{}{}:
+		}
+		group.Go(func() error {
+			defer func() { <-slots }()
+			if workerCtx.Err() != nil {
+				return nil
+			}
+			return action()
 		})
+		return workerCtx.Err() == nil
+	})
+	if err := group.Wait(); err != nil {
+		return err
 	}
-	if err := g.Wait(); err != nil {
-		return errorhelper.CallerError(err)
-	}
-	return nil
+	return ctx.Err()
 }

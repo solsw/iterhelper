@@ -40,6 +40,11 @@ functions that cannot fail (`Empty`, `Var`, `ChanAll`, ...) return only an itera
 | `ChanAll[E](c <-chan E) iter.Seq[E]` | Iterator over the elements of a channel (nil channel yields an empty sequence). |
 | `ChanAll2[E](c <-chan E) iter.Seq2[int, E]` | Iterator over index/element pairs of a channel. |
 
+`Var2` returns an error wrapping `ErrOddValues` for an incomplete pair or
+`ErrWrongType` for a type mismatch. The mismatch message names the supplied
+type and the expected key or value type. For example,
+`Var2[string, fmt.Stringer]("x", 123)` reports `got int, want fmt.Stringer`.
+
 ### Converting iterators
 
 | Function | Description |
@@ -69,10 +74,20 @@ functions that cannot fail (`Empty`, `Var`, `ChanAll`, ...) return only an itera
 
 | Function | Description |
 | --- | --- |
-| `ForEach[V](ctx, seq, action) error` | Run `action` on each value sequentially; stops on context cancellation or an action error. |
-| `ForEachConcurrent[V](ctx, seq, action) error` | Run `action` on each value concurrently (bounded by `8 * runtime.NumCPU()`). |
+| `ForEach[V](ctx, seq, action) error` | Run `action` on each value sequentially. |
+| `ForEachConcurrent[V](ctx, seq, action) error` | Run `action` on values concurrently. |
 | `ForEach2[K, V](ctx, seq2, action) error` | Run `action` on each pair sequentially. |
 | `ForEachConcurrent2[K, V](ctx, seq2, action) error` | Run `action` on each pair concurrently. |
+
+All four helpers check the context before entering the iterator, even for an
+empty sequence. If the final action cancels the context and returns `nil`,
+the helper still reports cancellation. Use `errors.Is` to check for
+`context.Canceled`, `context.DeadlineExceeded`, or an error returned by the action.
+
+The concurrent helpers run up to `8 * runtime.NumCPU()` actions at once.
+They stop requesting values when they observe cancellation or an action error
+and wait for actions already running. If an iterator or action can block,
+have it observe the context so it can return promptly.
 
 ### Formatting and string conversion
 
@@ -99,6 +114,10 @@ type Format struct {
 `DefaultFormat` (used by `StringDef`/`StringDef2`) renders as `[a b c]` and
 `[k1:v1 k2:v2]`. It is a package-level variable — assign to it to change the
 defaults, but note that concurrent modification is not safe.
+
+`ElementSeparator` appears between adjacent values or pairs even when one
+renders as an empty string. With the default format,
+`StringDef(Var("", "x"))` returns `"[ x]"`.
 
 ### Errors
 

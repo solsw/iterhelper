@@ -7,11 +7,81 @@ import (
 	"reflect"
 	"sync/atomic"
 	"testing"
+	"testing/synctest"
 
 	"github.com/solsw/errorhelper"
 )
 
 var ErrTestError = errors.New("test error")
+
+func TestForEachStopsIteration(t *testing.T) {
+	type runFunc func(context.Context, iter.Seq[int], func(int) error) error
+	withPairs := func(run func(context.Context, iter.Seq2[int, int], func(int, int) error) error) runFunc {
+		return func(ctx context.Context, seq iter.Seq[int], action func(int) error) error {
+			pairs, err := SeqSeq2(seq, func(v int) (int, int) { return v, v })
+			if err != nil {
+				return err
+			}
+			return run(ctx, pairs, func(_, v int) error { return action(v) })
+		}
+	}
+	for _, tc := range []struct {
+		name string
+		run  runFunc
+	}{
+		{"ForEach", ForEach[int]},
+		{"ForEach2", withPairs(ForEach2[int, int])},
+		{"ForEachConcurrent", ForEachConcurrent[int]},
+		{"ForEachConcurrent2", withPairs(ForEachConcurrent2[int, int])},
+	} {
+		t.Run(tc.name+"/already canceled", func(t *testing.T) {
+			ctx, cancel := context.WithCancel(t.Context())
+			cancel()
+			seq := func(func(int) bool) { t.Error("entered iterator after cancellation") }
+			err := tc.run(ctx, seq, func(int) error { return nil })
+			if !errors.Is(err, context.Canceled) {
+				t.Fatalf("got %v, want context.Canceled", err)
+			}
+		})
+		t.Run(tc.name+"/last action cancels", func(t *testing.T) {
+			ctx, cancel := context.WithCancel(t.Context())
+			defer cancel()
+			err := tc.run(ctx, Var(1), func(int) error { cancel(); return nil })
+			if !errors.Is(err, context.Canceled) {
+				t.Fatalf("got %v, want context.Canceled", err)
+			}
+		})
+		for _, cause := range []error{ErrTestError, context.Canceled} {
+			t.Run(tc.name+"/"+cause.Error(), func(t *testing.T) {
+				synctest.Test(t, func(t *testing.T) {
+					ctx, cancel := context.WithCancel(t.Context())
+					defer cancel()
+					seq := func(yield func(int) bool) {
+						if yield(1) {
+							synctest.Wait() // Let the first action finish before offering more work.
+							if yield(2) {
+								t.Error("iterator was asked to continue after the action stopped iteration")
+							}
+						}
+					}
+					err := tc.run(ctx, seq, func(v int) error {
+						if v != 1 {
+							t.Errorf("unexpected action for %d", v)
+						}
+						if cause == context.Canceled {
+							cancel()
+							return nil
+						}
+						return cause
+					})
+					if !errors.Is(err, cause) {
+						t.Fatalf("got %v, want %v", err, cause)
+					}
+				})
+			})
+		}
+	}
+}
 
 func TestForEach_int(t *testing.T) {
 	var acc1 int

@@ -3,6 +3,7 @@ package iterhelper
 import (
 	"fmt"
 	"iter"
+	"reflect"
 	"slices"
 
 	"github.com/solsw/errorhelper"
@@ -46,12 +47,12 @@ func Var2[K, V any](vv ...any) (iter.Seq2[K, V], error) {
 		k, okK := vv[i].(K)
 		if !okK {
 			return nil, errorhelper.CallerError(
-				fmt.Errorf("got %T, want %T: %w", vv[i], k, ErrWrongType), vv[i])
+				fmt.Errorf("got %T, want %v: %w", vv[i], reflect.TypeFor[K](), ErrWrongType))
 		}
 		v, okV := vv[i+1].(V)
 		if !okV {
 			return nil, errorhelper.CallerError(
-				fmt.Errorf("got %T, want %T: %w", vv[i+1], v, ErrWrongType), vv[i+1])
+				fmt.Errorf("got %T, want %v: %w", vv[i+1], reflect.TypeFor[V](), ErrWrongType))
 		}
 		tt[i/2] = generichelper.Tuple2[K, V]{Item1: k, Item2: v}
 	}

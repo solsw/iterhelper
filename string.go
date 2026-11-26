@@ -45,10 +45,12 @@ func StringFmt[V any](seq iter.Seq[V], format Format) string {
 		return ""
 	}
 	var b strings.Builder
+	first := true
 	for v := range seq {
-		if b.Len() > 0 {
+		if !first {
 			b.WriteString(format.ElementSeparator)
 		}
+		first = false
 		b.WriteString(format.LeftRim + fmt.Sprint(v) + format.RightRim)
 	}
 	return format.LeftEdge + b.String() + format.RightEdge
@@ -76,10 +78,12 @@ func StringFmt2[K, V any](seq2 iter.Seq2[K, V], format Format) string {
 		return ""
 	}
 	var b strings.Builder
+	first := true
 	for k, v := range seq2 {
-		if b.Len() > 0 {
+		if !first {
 			b.WriteString(format.ElementSeparator)
 		}
+		first = false
 		b.WriteString(format.LeftRim + fmt.Sprint(k) + format.ValueSeparator + fmt.Sprint(v) + format.RightRim)
 	}
 	return format.LeftEdge + b.String() + format.RightEdge

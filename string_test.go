@@ -42,6 +42,16 @@ func TestStringFmt_int(t *testing.T) {
 	}
 }
 
+func TestStringFmtLeadingEmptyElements(t *testing.T) {
+	if got := StringDef(Var("", "", "x")); got != "[  x]" {
+		t.Errorf("StringDef = %q, want %q", got, "[  x]")
+	}
+	pairs := Var2Tuple(generichelper.NewTuple2("", ""), generichelper.NewTuple2("", "x"))
+	if got := StringFmt2(pairs, Format{ElementSeparator: "|"}); got != "|x" {
+		t.Errorf("StringFmt2 = %q, want %q", got, "|x")
+	}
+}
+
 type intStringer int
 
 func (i intStringer) String() string {

@@ -1,11 +1,24 @@
 package iterhelper
 
 import (
+	"errors"
+	"fmt"
 	"iter"
+	"strings"
 	"testing"
 
 	"github.com/solsw/generichelper"
 )
+
+func TestVar2WrongInterfaceType(t *testing.T) {
+	_, keyErr := Var2[fmt.Stringer, int](123, 1)
+	_, valueErr := Var2[int, fmt.Stringer](1, 123)
+	for _, err := range []error{keyErr, valueErr} {
+		if !errors.Is(err, ErrWrongType) || !strings.Contains(err.Error(), "got int, want fmt.Stringer") || strings.Contains(err.Error(), "123") {
+			t.Errorf("expected a type mismatch naming fmt.Stringer, got %v", err)
+		}
+	}
+}
 
 func TestVar_int_1(t *testing.T) {
 	t.Run("", func(t *testing.T) {
